@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerShooting : MonoBehaviour
 {
@@ -16,6 +17,7 @@ public class PlayerShooting : MonoBehaviour
     AudioSource gunAudio;
     Light gunLight;
     float effectsDisplayTime = 0.2f;
+    bool shooting;
 
 
     void Awake ()
@@ -32,7 +34,7 @@ public class PlayerShooting : MonoBehaviour
     {
         timer += Time.deltaTime;
 
-		if(Input.GetButton ("Fire1") && timer >= timeBetweenBullets && Time.timeScale != 0)
+		if(shooting && timer >= timeBetweenBullets && Time.timeScale != 0)
         {
             Shoot ();
         }
@@ -43,6 +45,17 @@ public class PlayerShooting : MonoBehaviour
         }
     }
 
+    public void OnShoot(InputAction.CallbackContext ctx)
+    {
+        if (ctx.performed)
+        {
+            shooting = true;
+        }
+        if (ctx.canceled)
+        {
+            shooting = false;
+        }
+    }
 
     public void DisableEffects ()
     {

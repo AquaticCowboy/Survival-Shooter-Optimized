@@ -1,18 +1,23 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemyHealth : MonoBehaviour
 {
-    public int startingHealth = 100;
+    [SerializeField] Enemy_Data_Template EnemyData;
     public int currentHealth;
-    public float sinkSpeed = 2.5f;
-    public int scoreValue = 10;
     public AudioClip deathClip;
+    public EnemyPool pool;
 
 
     Animator anim;
+    int ID_Dead = Animator.StringToHash("Dead");
     AudioSource enemyAudio;
     ParticleSystem hitParticles;
     CapsuleCollider capsuleCollider;
+    NavMeshAgent _agent;
+    Rigidbody rb;
+    
     bool isDead;
     bool isSinking;
 
@@ -23,8 +28,11 @@ public class EnemyHealth : MonoBehaviour
         enemyAudio = GetComponent <AudioSource> ();
         hitParticles = GetComponentInChildren <ParticleSystem> ();
         capsuleCollider = GetComponent <CapsuleCollider> ();
+        _agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
+        rb = GetComponent<Rigidbody>();
+        
 
-        currentHealth = startingHealth;
+        currentHealth = EnemyData.MaxHealth;
     }
 
 
@@ -32,7 +40,7 @@ public class EnemyHealth : MonoBehaviour
     {
         if(isSinking)
         {
-            transform.Translate (-Vector3.up * sinkSpeed * Time.deltaTime);
+            transform.Translate (-Vector3.up * EnemyData.SinkSpeed * Time.deltaTime);
         }
     }
 
@@ -62,7 +70,7 @@ public class EnemyHealth : MonoBehaviour
 
         capsuleCollider.isTrigger = true;
 
-        anim.SetTrigger ("Dead");
+        anim.SetTrigger (ID_Dead);
 
         enemyAudio.clip = deathClip;
         enemyAudio.Play ();
@@ -71,10 +79,30 @@ public class EnemyHealth : MonoBehaviour
 
     public void StartSinking ()
     {
-        GetComponent <UnityEngine.AI.NavMeshAgent> ().enabled = false;
-        GetComponent <Rigidbody> ().isKinematic = true;
+        _agent.enabled = false;
+        rb.isKinematic = true;
         isSinking = true;
-        ScoreManager.score += scoreValue;
-        Destroy (gameObject, 2f);
+        ScoreManager.score += EnemyData.ScoreValue;
+        StartCoroutine(ReturnToQueue());
+    }
+
+    public void SetPool(EnemyPool inputPool)
+    {
+        pool = inputPool;
+    }
+
+    private void OnDisable()
+    {
+        if (pool != null)
+        {
+            pool.addToQueue(this);
+        }
+    }
+
+    IEnumerator ReturnToQueue()
+    {
+
+        yield return new WaitForSeconds(2f);
+        gameObject.SetActive(false);
     }
 }

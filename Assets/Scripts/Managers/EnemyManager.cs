@@ -6,19 +6,15 @@ public class EnemyManager : MonoBehaviour
     public GameObject enemy;
     public float spawnTime = 3f;
     public Transform[] spawnPoints;
+    public EnemyPool pool;
 
 
     void Start ()
     {
         InvokeRepeating ("Spawn", spawnTime, spawnTime);
     }
-
-    void Update()
-    {
-
-    }
-
-
+    
+    
     void Spawn ()
     {
         if(playerHealth.currentHealth <= 0f)
@@ -28,6 +24,6 @@ public class EnemyManager : MonoBehaviour
 
         int spawnPointIndex = Random.Range (0, spawnPoints.Length);
 
-        Instantiate (enemy, spawnPoints[spawnPointIndex].position, spawnPoints[spawnPointIndex].rotation);
+        pool.SpawnAtLocation(spawnPoints[spawnPointIndex].position);
     }
 }

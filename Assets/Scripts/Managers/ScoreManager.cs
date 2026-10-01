@@ -1,13 +1,12 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using UnityEngine.Events;
 
 public class ScoreManager : MonoBehaviour
 {
     public static int score;
-
-
-    [SerializeField] Text text;
+    public UnityEvent<string> UpdateScore;
 
 
     void Awake ()
@@ -18,6 +17,6 @@ public class ScoreManager : MonoBehaviour
 
     void Update ()
     {
-        text.text = "Score: " + score;
+        UpdateScore.Invoke("Score: " + score);
     }
 }

@@ -2,13 +2,14 @@
 using UnityEngine.UI;
 using System.Collections;
 using UnityEngine.SceneManagement;
+using UnityEngine.Events;
 
 
 public class PlayerHealth : MonoBehaviour
 {
+    public UnityEvent<float> UpdateHealth;
     public int startingHealth = 100;
     public int currentHealth;
-    public Slider healthSlider;
     public Image damageImage;
     public AudioClip deathClip;
     public float flashSpeed = 5f;
@@ -16,6 +17,7 @@ public class PlayerHealth : MonoBehaviour
 
 
     Animator anim;
+    int ID_Death = Animator.StringToHash("Die");
     AudioSource playerAudio;
     PlayerMovement playerMovement;
     PlayerShooting playerShooting;
@@ -53,7 +55,7 @@ public class PlayerHealth : MonoBehaviour
 
         currentHealth -= amount;
 
-        healthSlider.value = currentHealth;
+        UpdateHealth.Invoke(currentHealth);
 
         playerAudio.Play ();
 
@@ -70,7 +72,7 @@ public class PlayerHealth : MonoBehaviour
 
         playerShooting.DisableEffects ();
 
-        anim.SetTrigger ("Die");
+        anim.SetTrigger (ID_Death);
 
         playerAudio.clip = deathClip;
         playerAudio.Play ();

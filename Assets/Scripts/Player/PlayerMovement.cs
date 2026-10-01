@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -6,38 +8,50 @@ public class PlayerMovement : MonoBehaviour
 
 	private Vector3 movement;
 	private Animator anim;
+	int ID_Walk = Animator.StringToHash("IsWalking");
 	private Rigidbody playerRigidbody;
 	private int floorMask;
+	private Camera _cam;
 	private float camRayLength = 100f;
+
+	bool movePressed;
 
 	void Awake()
 	{
 		floorMask = LayerMask.GetMask("Floor");
 		anim = GetComponent<Animator>();
 		playerRigidbody = GetComponent<Rigidbody>();
+		_cam = Camera.main;
 	}
 
 	void FixedUpdate()
 	{
-		float h = Input.GetAxisRaw("Horizontal");
-		float v = Input.GetAxisRaw("Vertical");
+		/*float h = Input.GetAxisRaw("Horizontal");
+		float v = Input.GetAxisRaw("Vertical");*/
 
-		Move(h, v);
+		MovePosition();
 		Turning();
-		Animating(h, v);
+		//Animating(h, v);
 	}
 
-	void Move(float h, float v)
+	void MovePosition()
 	{
-		movement.Set(h, 0f, v);
-		movement = movement.normalized * speed * Time.deltaTime;
+        playerRigidbody.MovePosition(transform.position + (movement * speed * Time.deltaTime));
+        Animating();
+    }
 
-		playerRigidbody.MovePosition(transform.position + movement);
-	}
+	public void Move(InputAction.CallbackContext ctx/*float h, float v*/)
+	{
+		Vector2 moveDirection = ctx.ReadValue<Vector2>();
+		//movement.Set(moveDirection.x, 0f, moveDirection.y);
+		movement = new Vector3 (moveDirection.x, 0f, moveDirection.y);
+
+		
+    }
 
 	void Turning()
 	{
-		Ray camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+		Ray camRay = _cam.ScreenPointToRay(Input.mousePosition);
 		RaycastHit floorHit;
 
 		if (Physics.Raycast(camRay, out floorHit, camRayLength, floorMask)) {
@@ -49,10 +63,10 @@ public class PlayerMovement : MonoBehaviour
 		}
 	}
 
-	void Animating(float h, float v)
+	void Animating()
 	{
-		bool walking = h != 0f || v != 0f;
+		bool walking = movement.x != 0f || movement.z != 0f;
 
-		anim.SetBool("IsWalking", walking);
+		anim.SetBool(ID_Walk, walking);
 	}
 }

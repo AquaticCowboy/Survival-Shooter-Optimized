@@ -1,9 +1,11 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameOverManager : MonoBehaviour
 {
     public PlayerHealth playerHealth;
 	public float restartDelay = 5f;
+    int ID_GameOver = Animator.StringToHash("GameOver");
 
 
     Animator anim;
@@ -20,7 +22,7 @@ public class GameOverManager : MonoBehaviour
     {
         if (playerHealth.currentHealth <= 0)
         {
-            anim.SetTrigger("GameOver");
+            anim.SetTrigger(ID_GameOver);
 
 			restartTimer += Time.deltaTime;
 
